@@ -1,7 +1,7 @@
+import { Button } from "@/components/ui/button";
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { env } from "cloudflare:workers";
-import { Button } from "~/components/ui/button";
 
 export const Route = createFileRoute("/")({
 	loader: () => getData(),
