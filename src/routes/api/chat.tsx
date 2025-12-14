@@ -19,23 +19,24 @@ const tools = {
 type ToolTypes = InferUITools<typeof tools>;
 export type MyUIMessage = UIMessage<unknown, UIDataTypes, ToolTypes>;
 
+const openrouter = createOpenRouter({
+	apiKey: env.OPENROUTER_API_KEY,
+});
+
 export const Route = createFileRoute("/api/chat")({
 	server: {
 		handlers: {
 			POST: async ({ request }) => {
 				const { messages }: { messages: UIMessage[] } = await request.json();
 
-				const openrouter = createOpenRouter({
-					apiKey: env.OPENROUTER_API_KEY,
-				});
 
 				const agent = new ToolLoopAgent({
 					model: openrouter("openai/gpt-5-nano"),
 					instructions: `
-    You are a document research agent. 
-    For the user’s query, generate exactly THREE meaningful sub-queries.
-    For each sub-query, call the tool: documentSearch.
-    After retrieving documents for each, summarize the findings.
+You are a document research agent. 
+For the user’s query, generate exactly THREE meaningful sub-queries.
+For each sub-query, call the tool: documentSearch.
+After retrieving documents for each, summarize the findings.
   `,
 					tools,
 					stopWhen: stepCountIs(10),

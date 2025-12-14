@@ -10,7 +10,6 @@ export const documentSearchTool: Tool = {
 	execute: async ({ query }: { query: string }) => {
 		const response = (await env.ai.autorag("tgxai-rag").search({
 			query,
-			rewrite_query: true,
 		})) as AutoRagSearchResponse;
 		return response;
 	},
