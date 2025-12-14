@@ -10,8 +10,6 @@
   },
   "main": "@tanstack/react-start/server-entry",
   "vars": {
-    "OPENROUTER_API_KEY": true,
-    "CLOUDFLARE_ACCOUNT_ID": true,
-    "CLOUDFLARE_API_KEY": true,
+    "OPENROUTER_API_KEY": "__OPENROUTER_API_KEY__",
   },
 }
