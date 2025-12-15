@@ -11,6 +11,7 @@ import { DocumentSources } from "@/components/document-sources";
 import type { MyUIMessage } from "@/routes/api/chat";
 import { useChat } from "@ai-sdk/react";
 import { useState } from "react";
+import { Suggestion, Suggestions } from "./ai-elements/suggestion";
 
 export default function Chat() {
 	const [input, setInput] = useState("");
@@ -24,11 +25,16 @@ export default function Chat() {
 		sendMessage({ text: message.text });
 		setInput("");
 	};
+	const [suggestionsCache, _setSuggestionsCache] = useState<string[]>([
+		"Ada berapa hibah kendaraan bermotor?",
+		"Jelaskan peraturan bupati tentang RSUD",
+		"Beritahu tentang badan ekonomi kreatif di trenggalek?",
+	]);
 
 	return (
 		<div className="w-full h-screen flex">
 			{/* Left side - Chat */}
-			<div className="flex-1 flex flex-col border-r">
+			<div className="w-1/2 flex flex-col border-r">
 				<div className="flex-1 overflow-hidden">
 					<ChatMessages
 						messages={messages}
@@ -36,7 +42,16 @@ export default function Chat() {
 						regenerate={regenerate}
 					/>
 				</div>
-				<div className="border-t p-4">
+				<div className="border-t p-4 flex-shrink-0">
+					<Suggestions className="mb-2">
+						{suggestionsCache.map((suggestion, index) => (
+							<Suggestion
+								onClick={() => setInput(suggestion)}
+								key={index.toString()}
+								suggestion={suggestion}
+							/>
+						))}
+					</Suggestions>
 					<PromptInput onSubmit={handleSubmit}>
 						<PromptInputBody>
 							<PromptInputTextarea
