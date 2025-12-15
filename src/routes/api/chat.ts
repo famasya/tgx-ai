@@ -12,7 +12,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import {
   convertToModelMessages,
   type InferUITools,
-  stepCountIs,
   ToolLoopAgent,
   type ToolSet,
   type UIDataTypes,
@@ -263,7 +262,25 @@ If you used processThought (rare), call clearHistory to prepare for the next que
 - **Be professional**: Use proper local government legal terminology and formal Indonesian language
 - **When in doubt**: Default to local government document types (Keputusan/Peraturan Bupati, Perda, SK Bupati)`,
           tools,
-          stopWhen: stepCountIs(6),
+          stopWhen: (state) => {
+            const stepCount = state.steps.length;
+
+            // Always stop after 10 steps as a safety limit
+            if (stepCount >= 10) return true;
+
+            // Check if we have at least 3 steps (minimum for a complete flow)
+            if (stepCount < 3) return false;
+
+            const lastStep = state.steps.at(-1);
+            if (!lastStep) return false;
+
+            // Stop if the last step has substantial text response and no tool calls
+            // This indicates the agent has finished processing and provided a final answer
+            const hasSubstantialText = (lastStep.text?.length ?? 0) > 200;
+            const hasNoToolCalls = !lastStep.toolCalls || lastStep.toolCalls.length === 0;
+
+            return hasSubstantialText && hasNoToolCalls;
+          },
         });
 
         const result = await agent.stream({
