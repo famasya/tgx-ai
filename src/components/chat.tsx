@@ -4,19 +4,28 @@ import {
 	PromptInputFooter,
 	type PromptInputMessage,
 	PromptInputSubmit,
-	PromptInputTextarea,
+	PromptInputTextarea
 } from "@/components/ai-elements/prompt-input";
 import { ChatMessages } from "@/components/chat-messages";
 import { DocumentSources } from "@/components/document-sources";
+import { saveSession } from "@/lib/session";
 import type { MyUIMessage } from "@/routes/api/chat";
 import { useChat } from "@ai-sdk/react";
-import { type FormEvent, useState } from "react";
+import { Save } from "lucide-react";
+import { type FormEvent, useState, useTransition } from "react";
 import { Suggestion, Suggestions } from "./ai-elements/suggestion";
+import { Button } from "./ui/button";
 
-export default function Chat() {
+type Props = {
+	initialMessages?: MyUIMessage[];
+	sessionId?: string;
+}
+export default function Chat({ initialMessages, sessionId }: Props) {
 	const [input, setInput] = useState("");
 	const { messages, sendMessage, status, regenerate, stop } =
-		useChat<MyUIMessage>();
+		useChat<MyUIMessage>({ messages: initialMessages ?? [] });
+
+	const [isPending, startTransition] = useTransition();
 
 	const handleSubmit = (
 		message: PromptInputMessage,
@@ -71,6 +80,9 @@ export default function Chat() {
 						</PromptInputBody>
 						<PromptInputFooter>
 							<PromptInputSubmit disabled={!input && !status} status={status} />
+							<Button size="sm" disabled={messages.length === 0 || isPending} onClick={async () => {
+								await saveSession({ data: { messages, id: sessionId } });
+							}}><Save /> Simpan</Button>
 						</PromptInputFooter>
 					</PromptInput>
 				</div>
