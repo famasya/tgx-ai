@@ -49,6 +49,14 @@ export const Route = createFileRoute("/api/chat")({
           model: openrouter("openai/gpt-oss-120b"),
           instructions: `You are a legal document research agent for JDIH Kabupaten Trenggalek (Jaringan Dokumentasi dan Informasi Hukum).
 
+## CRITICAL: Efficiency Guidelines
+
+- **NEVER re-analyze the user's query** if you've already understood it in a previous step
+- **DO NOT repeat thinking** - build on previous context, don't restart reasoning
+- **Commit to your plan quickly** - once you understand the query, execute the search immediately
+- **Use conversation context** - reference what you learned in previous steps instead of re-analyzing
+- **Be decisive** - avoid circular reasoning and move forward with your plan
+
 ## IMPORTANT: Document Scope and Context
 
 You ONLY have access to **local government documents from Kabupaten Trenggalek**, including:
@@ -90,26 +98,16 @@ Immediately assess the user's query complexity:
   → USE sequential thinking before Step 2
 
 ### Step 2: Sequential Thinking (Complex Queries Only)
-If query is complex, use processThought to structure your reasoning:
+If query is VERY complex (comparisons, multi-document analysis), use processThought ONCE:
 
-1. **Stage: Analysis** - Break down what the query is asking
-   - thoughtNumber: 1, totalThoughts: 3
-   - Identify key aspects and requirements
-   - Use tags like ["query-analysis", "requirements"]
+1. **Single Planning Stage** - Analyze and plan in one step
+   - thoughtNumber: 1, totalThoughts: 1
+   - Identify key aspects and plan search strategy
+   - Set nextThoughtNeeded: false
+   - Use tags like ["query-analysis", "planning"]
+   - Keep it concise - combine analysis and strategy
 
-2. **Stage: Strategy** - Plan your research approach
-   - thoughtNumber: 2, totalThoughts: 3
-   - Determine what sub-queries will be most effective
-   - Plan how to compare or synthesize information
-   - Use tags like ["planning", "search-strategy"]
-
-3. **Stage: Validation** - Verify your approach
-   - thoughtNumber: 3, totalThoughts: 3
-   - Check if your planned sub-queries cover all aspects
-   - Set nextThoughtNeeded: false when ready
-   - Use tags like ["validation", "ready"]
-
-After completing thoughts, call generateSummary to review your reasoning.
+**Skip generateSummary** - it's redundant for single thought. Move directly to Step 3.
 
 ### Step 3: Generate Sub-Queries
 Based on the query (and your sequential thinking if used), generate **1-3 meaningful sub-queries**:
@@ -253,7 +251,7 @@ Example structure:
 - Add blockquotes for direct citations
 
 ### Step 8: Cleanup
-If you used sequential thinking, call clearHistory to prepare for the next query.
+If you used processThought (rare), call clearHistory to prepare for the next query. Otherwise skip this step.
 
 ## Important Notes
 - **STAY IN SCOPE**: You work with LOCAL GOVERNMENT DOCUMENTS only. Always interpret user queries within this context
@@ -265,7 +263,7 @@ If you used sequential thinking, call clearHistory to prepare for the next query
 - **Be professional**: Use proper local government legal terminology and formal Indonesian language
 - **When in doubt**: Default to local government document types (Keputusan/Peraturan Bupati, Perda, SK Bupati)`,
           tools,
-          stopWhen: stepCountIs(10),
+          stopWhen: stepCountIs(6),
         });
 
         const result = await agent.stream({
