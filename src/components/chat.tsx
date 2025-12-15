@@ -4,13 +4,13 @@ import {
 	PromptInputFooter,
 	type PromptInputMessage,
 	PromptInputSubmit,
-	PromptInputTextarea
+	PromptInputTextarea,
 } from "@/components/ai-elements/prompt-input";
 import { ChatMessages } from "@/components/chat-messages";
 import { DocumentSources } from "@/components/document-sources";
 import type { MyUIMessage } from "@/routes/api/chat";
 import { useChat } from "@ai-sdk/react";
-import { FileText, X } from "lucide-react";
+import { TextSearch, X } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 import { Suggestion, Suggestions } from "./ai-elements/suggestion";
 import { Button } from "./ui/button";
@@ -58,9 +58,11 @@ export default function Chat() {
 	]);
 
 	return (
-		<div className="w-full h-screen flex flex-col md:flex-row relative">
+		<div className="w-full h-full flex flex-col md:flex-row relative">
 			{/* Main Chat Area */}
-			<div className={`flex flex-col h-full transition-all duration-300 ${showSources ? "w-full md:w-1/2" : "w-full"}`}>
+			<div
+				className={`flex flex-col h-full transition-all duration-300 ${showSources ? "w-full md:w-1/2" : "w-full"}`}
+			>
 				<div className="flex-1 overflow-hidden">
 					<ChatMessages
 						messages={messages}
@@ -84,7 +86,7 @@ export default function Chat() {
 							onClick={() => setShowSources(!showSources)}
 							title={showSources ? "Hide Sources" : "Show Sources"}
 						>
-							<FileText className="w-4 h-4" />
+							<TextSearch className="w-4 h-4" />
 						</Button>
 					</div>
 					<PromptInput onSubmit={handleSubmit}>

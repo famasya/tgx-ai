@@ -5,9 +5,12 @@ import { env } from "cloudflare:workers";
 import z from "zod";
 
 export const loadSession = createServerFn()
-	.inputValidator(z.object({
-		session: z.string().optional(),
-	})).handler(async ({ data: session }) => {
+	.inputValidator(
+		z.object({
+			session: z.string().optional(),
+		}),
+	)
+	.handler(async ({ data: session }) => {
 		if (session) {
 			const data = await env.kv.get(`session:${session}`);
 			if (data) {
@@ -29,9 +32,5 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-	return (
-		<div className="flex flex-col gap-2 h-screen w-full items-center justify-center">
-			<Chat />
-		</div>
-	);
+	return <Chat />;
 }

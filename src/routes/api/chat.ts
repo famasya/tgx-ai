@@ -149,14 +149,27 @@ For each sub-query, call documentSearch with the query string. This returns an A
 - Each result has a 'filename' field (e.g., "document.pdf")
 
 ### Step 5: Parse Full Document Contents
-For each unique filename returned from documentSearch:
-1. Extract the filename
-2. Call documentParse with the filename to get the full page contents
-3. The documentParse tool will return the complete document content analyzed by the model
+After gathering search results from documentSearch:
+1. Extract all unique filenames from the search results
+2. Extract the CORE TOPIC from the user's query by removing:
+   - Command words (carikan, jelaskan, cari, etc.)
+   - Document types (perda, perbup, SK, keputusan, peraturan, etc.)
+   - Location names (Trenggalek, Kabupaten Trenggalek, etc.)
+   - Only keep the essential subject matter
+   - Examples:
+     * "Carikan perda tentang lingkungan hidup Kabupaten Trenggalek" → "lingkungan hidup"
+     * "Jelaskan perbup nomor 5 tentang retribusi parkir" → "retribusi parkir"
+     * "SK Bupati tentang pembentukan tim BLUD" → "pembentukan tim BLUD"
+3. Call documentParse ONCE with the array of filenames and the refined core topic as the query parameter
+   - The refined query helps focus extraction on relevant sections without noise
+4. The documentParse tool will return the relevant document contents analyzed by the model
 
 **Important:**
+- Batch all filenames in a SINGLE documentParse call (more efficient than multiple calls)
+- Deduplicate filenames before parsing if the same document appears in multiple search results
+- ALWAYS refine the query to extract only the core topic before passing to documentParse
+- The refined query should be concise (1-5 words) focusing on the subject matter
 - Only parse documents that are relevant to answering the query
-- Deduplicate filenames if the same document appears in multiple search results
 - Use the full parsed content (not just search snippets) to provide comprehensive answers
 
 ### Step 6: Synthesize Results

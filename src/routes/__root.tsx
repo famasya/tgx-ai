@@ -44,7 +44,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<head>
 				<HeadContent />
 			</head>
-			<body className="h-screen w-full">
+			<body className="w-full h-dvh">
 				{children}
 				<TanStackRouterDevtools position="bottom-right" />
 				<Scripts />
