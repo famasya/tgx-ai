@@ -7,7 +7,7 @@ import {
 	PromptInputTextarea,
 } from "@/components/ai-elements/prompt-input";
 import { ChatMessages } from "@/components/chat-messages";
-import type { UIMessage } from "@/routes/api/chat";
+import type { ChatUIMessage } from "@/routes/api/chat";
 import { useChat } from "@ai-sdk/react";
 import { Quote } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -17,7 +17,7 @@ import Header from "./header";
 export default function Chat() {
 	const [input, setInput] = useState("");
 	const { messages, sendMessage, status, regenerate, stop } =
-		useChat<UIMessage>();
+		useChat<ChatUIMessage>();
 
 	const handleSubmit = (
 		message: PromptInputMessage,
@@ -49,13 +49,17 @@ export default function Chat() {
 
 			{/* Messages Area */}
 			<div className="flex-1 w-full overflow-hidden max-w-4xl mx-auto [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-2">
-				{messages.length > 0 ?
+				{messages.length > 0 ? (
 					<ChatMessages
 						messages={messages}
 						status={status}
 						regenerate={regenerate}
-					/> : <div className="max-w-4xl px-4 mx-auto h-full flex flex-col justify-center">
-						<div className="text-center bg-gradient-to-tl from-sky-800 via-sky-500 to-sky-400 bg-clip-text text-transparent text-3xl font-semibold selection:bg-sky-200 selection:text-sky-900">Telo AI</div>
+					/>
+				) : (
+					<div className="max-w-4xl px-4 mx-auto h-full flex flex-col justify-center">
+						<div className="text-center bg-gradient-to-tl from-sky-800 via-sky-500 to-sky-400 bg-clip-text text-transparent text-3xl font-semibold selection:bg-sky-200 selection:text-sky-900">
+							Telo AI
+						</div>
 						<h3 className="text-sm font-semibold text-zinc-800 mb-3 flex items-center gap-2 mt-2">
 							<span className="w-1 h-4 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full" />
 							SARAN PERTANYAAN
@@ -81,7 +85,7 @@ export default function Chat() {
 							))}
 						</div>
 					</div>
-				}
+				)}
 			</div>
 
 			{/* Input Area */}
@@ -105,7 +109,8 @@ export default function Chat() {
 					</PromptInputFooter>
 				</PromptInput>
 				<div className="text-xs my-2 text-center text-zinc-700 rounded-lg p-2">
-					AI mungkin memberikan informasi yang tidak akurat. Selalu cek kebenaran informasi di sumber resmi.
+					AI mungkin memberikan informasi yang tidak akurat. Selalu cek
+					kebenaran informasi di sumber resmi.
 				</div>
 			</div>
 		</div>

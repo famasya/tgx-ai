@@ -27,7 +27,7 @@ const tools = {
 } satisfies ToolSet;
 
 type ToolTypes = InferUITools<typeof tools>;
-export type UIMessage = UIMessage<unknown, UIDataTypes, ToolTypes>;
+export type ChatUIMessage = UIMessage<unknown, UIDataTypes, ToolTypes>;
 
 const openrouter = createOpenRouter({
 	apiKey: env.OPENROUTER_API_KEY,

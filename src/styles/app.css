@@ -144,6 +144,7 @@
   /* Transparent scrollbar */
   *::-webkit-scrollbar {
     @apply w-2;
+    height: 0.5rem;
   }
 
   *::-webkit-scrollbar-track {

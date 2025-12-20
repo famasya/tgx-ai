@@ -16,7 +16,7 @@ import {
 	ReasoningContent,
 	ReasoningTrigger,
 } from "@/components/ai-elements/reasoning";
-import type { UIMessage } from "@/routes/api/chat";
+import type { ChatUIMessage } from "@/routes/api/chat";
 import {
 	AiNetworkIcon,
 	Copy01Icon,
@@ -28,7 +28,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import type { ChatRequestOptions, ChatStatus } from "ai";
 
 interface ChatMessagesProps {
-	messages: UIMessage[];
+	messages: ChatUIMessage[];
 	status: ChatStatus;
 	regenerate: (options?: ChatRequestOptions) => void;
 }
@@ -47,7 +47,9 @@ function ToolCallDisplay({
 			case "documentSearch":
 				return <HugeiconsIcon icon={Search01Icon} size={16} strokeWidth={2} />;
 			case "documentContentSearchTool":
-				return <HugeiconsIcon icon={FileSearchIcon} size={16} strokeWidth={2} />;
+				return (
+					<HugeiconsIcon icon={FileSearchIcon} size={16} strokeWidth={2} />
+				);
 			case "documentRelationGraph":
 				return <HugeiconsIcon icon={AiNetworkIcon} size={16} strokeWidth={2} />;
 			default:
@@ -92,6 +94,7 @@ function ToolCallDisplay({
 
 	const renderDocuments = () => {
 		const documents = output?.documents;
+		console.log('documents:', documents);
 		if (!documents || !Array.isArray(documents) || documents.length === 0) {
 			return null;
 		}
@@ -162,7 +165,11 @@ export function ChatMessages({
 														onClick={() => regenerate()}
 														label="Retry"
 													>
-														<HugeiconsIcon icon={RefreshIcon} size={12} stroke="2" />
+														<HugeiconsIcon
+															icon={RefreshIcon}
+															size={12}
+															stroke="2"
+														/>
 													</MessageAction>
 													<MessageAction
 														onClick={() =>
