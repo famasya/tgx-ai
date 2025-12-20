@@ -4,6 +4,7 @@ import {
 	SourcesTrigger,
 } from "@/components/ai-elements/sources";
 import { DocumentRelationGraphRenderer } from "@/components/document-relation-graph-renderer";
+import { BUCKET_DOMAIN } from "@/lib/constants";
 import type { MyUIMessage } from "@/routes/api/chat";
 import { Streamdown } from "@phaserjs/streamdown-lite";
 import { ExternalLink } from "lucide-react";
@@ -73,7 +74,7 @@ export function DocumentSources({ messages }: DocumentSourcesProps) {
 											<ExternalLink className="mr-1 w-4 h-4 shrink-0" />
 											<a
 												className="text-blue-500 hover:text-blue-700"
-												href={`https://tgxai-buckets.abidf.com/${result.filename}`}
+												href={`${BUCKET_DOMAIN}/${result.filename}`}
 												target="_blank"
 											>
 												{result.filename}

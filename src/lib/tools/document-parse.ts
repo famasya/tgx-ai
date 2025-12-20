@@ -1,6 +1,7 @@
 import { tool } from "ai";
 import { env } from "cloudflare:workers";
 import { z } from "zod";
+import { BUCKET_DOMAIN } from "../constants";
 
 export const executeDocumentParse = async ({
 	filename,
@@ -35,7 +36,7 @@ export const executeDocumentParse = async ({
 								type: "file",
 								file: {
 									filename,
-									file_data: `https://tgxai-buckets.abidf.com/${filename}`,
+									file_data: `${BUCKET_DOMAIN}/${filename}`,
 								},
 							},
 						],
@@ -82,14 +83,11 @@ export const executeDocumentParse = async ({
 export const documentParse = tool({
 	description: "Parse documents and return its content as text",
 	inputSchema: z.object({
-		query: z
-			.string()
-			.optional()
-			.describe("Optional search query to filter documents"),
+		query: z.string().describe("Search query to filter documents"),
 		filenames: z
 			.array(z.string())
 			.describe(
-				"Arrays of file name including extension (e.g., document.pdf, report.docx). Must be a valid file name that exists in the tgxai-buckets.abidf.com bucket.",
+				`Arrays of file name including extension (e.g., document.pdf, report.docx). Must be a valid file name that exists in the ${BUCKET_DOMAIN} bucket.`,
 			),
 	}),
 	execute: async ({ filenames, query }) => {

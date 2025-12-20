@@ -141,3 +141,7 @@
     @apply bg-background text-foreground;
   }
 }
+
+.streamdown a {
+  @apply text-blue-500;
+}

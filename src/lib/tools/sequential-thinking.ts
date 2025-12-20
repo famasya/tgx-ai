@@ -31,7 +31,7 @@ class SequentialThoughtStore {
 
 export const thoughtStore = new SequentialThoughtStore();
 
-export const processThought = tool({
+export const sequentialThinking = tool({
 	description: "Record a step in a structured sequential thinking process.",
 	inputSchema: thoughtSchema,
 	execute: (input) => {
@@ -44,7 +44,7 @@ export const processThought = tool({
 	},
 });
 
-export const generateSummary = tool({
+export const generateSummarySequentialThinking = tool({
 	description: "Generate a structured summary of all recorded thoughts.",
 	inputSchema: z.object({}),
 	execute: async () => {
