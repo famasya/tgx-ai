@@ -16,7 +16,6 @@ import {
 } from "@/components/ai-elements/reasoning";
 import { DocumentSearchResults } from "@/components/document-search-results";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
-import { MermaidDiagram } from "@/components/mermaid-diagram";
 import type { ChatUIMessage } from "@/routes/api/chat";
 import {
 	AiSheetsIcon,
@@ -63,13 +62,13 @@ function ToolCallDisplay({
 			case "documentSearch":
 				return "Mencari dokumen";
 			case "documentContentSearchTool":
-				return "Membaca isi dokumen";
+				return "Membaca dokumen";
 			case "documentRelationGraph":
-				return "Menganalisa relasi dokumen";
+				return "Membuat relasi";
 			case "sequentialThinking":
-				return "Berpikir sekuensial";
+				return "Deep thinking";
 			case "generateSummarySequentialThinking":
-				return "Merangkum pemikiran";
+				return "Merangkum";
 			default:
 				return toolName;
 		}
@@ -98,23 +97,19 @@ function ToolCallDisplay({
 		);
 	};
 
-	const shouldShowMermaid = (): boolean => {
-		return toolName === "documentRelationGraph" && !!output?.mermaid;
-	};
-
 	return (
 		<div className="my-2 p-3 bg-violet-50 border border-violet-200 rounded-lg">
 			<div className="flex items-start gap-2">
 				<div className="mt-0.5 text-violet-600">{getToolIcon()}</div>
 				<div className="flex-1 w-full flex flex-col gap-3">
 					<div className="flex flex-row justify-between">
-						<div className="flex-1">
+						<div className="flex-1 flex row items-center gap-2">
 							<div className="font-medium text-sm text-zinc-900">
-								<span className="px-2 bg-violet-100 py-0.5 rounded-full">
+								<div className="px-2 bg-violet-100 py-0.5 rounded-lg shrink-0">
 									{getToolLabel()}
-								</span>
+								</div>
 							</div>
-							<div className="text-xs text-zinc-600 mt-1 break-words">
+							<div className="text-xs break-words text-violet-900">
 								{getToolArgs()}
 							</div>
 						</div>
@@ -125,13 +120,6 @@ function ToolCallDisplay({
 							/>
 						)}
 					</div>
-					{shouldShowMermaid() && (
-						<div className="bg-white p-4 rounded-md border border-violet-100">
-							<MermaidDiagram
-								chart={String((output as { mermaid: string }).mermaid)}
-							/>
-						</div>
-					)}
 				</div>
 			</div>
 		</div>

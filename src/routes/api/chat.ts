@@ -1,4 +1,4 @@
-import { BUCKET_DOMAIN } from "@/lib/constants";
+import { documentBatchContentSearchTool } from "@/lib/tools/document-batch-content-search";
 import { documentContentSearchTool } from "@/lib/tools/document-content-search";
 import { documentRelationGraph } from "@/lib/tools/document-relation-graph";
 import { documentSearchTool } from "@/lib/tools/document-search";
@@ -23,6 +23,7 @@ const tools = {
 	sequentialThinking,
 	generateSummarySequentialThinking,
 	documentContentSearchTool,
+	documentBatchContentSearchTool,
 	documentRelationGraph,
 } satisfies ToolSet;
 
@@ -33,7 +34,7 @@ const openrouter = createOpenRouter({
 	apiKey: env.OPENROUTER_API_KEY,
 	extraBody: {
 		provider: {
-			order: ["google-vertex", "clarifai/fp4"],
+			order: ["google-vertex"],
 		},
 	},
 });
@@ -48,6 +49,12 @@ export const Route = createFileRoute("/api/chat")({
 					temperature: 0.1,
 					topP: 0.9,
 					instructions: `You are a legal document research agent for JDIH Kabupaten Trenggalek.
+
+## BAHASA INDONESIA ONLY
+- **CRITICAL**: ALWAYS respond in Bahasa Indonesia.
+- All responses, explanations, summaries, and analysis MUST be in Bahasa Indonesia.
+- Document citations, technical terms, and legal terminology should use Indonesian language.
+- This is a strict requirement for all user-facing content.
 
 ## CRITICAL: OPTIMIZATION & EFFICIENCY
 - **Search FIRST**: For almost all queries, your first action MUST be \`documentSearch\`.
@@ -127,27 +134,39 @@ timeline
 ## WORKFLOW
 
 1. **SEARCH (Direct & Fast)**
-   - Construct a targeted search query based on the user's intent.
+   - Construct targeted search query from user's intent.
    - Call \`documentSearch\` immediately.
-   - Example: User "Carikan perda lingkungan hidup" -> Tool \`documentSearch("perda lingkungan hidup")\`.
+   - Example: User "Carikan peraturan PPPK" -> \`documentSearch("peraturan pegawai pemerintah perjanjian kerja")\`.
 
-2. **ANALYZE & PLAN (Sequential Thinking)**
-   - Use \`sequentialThinking\` to evaluate the search results.
-   - Decide which documents are most relevant.
-   - Formulate specific questions to ask *each* relevant document to extract the needed details.
+2. **LIST ALL RESULTS (Complete Inventory)**
+   - **CRITICAL**: Note ALL documents returned from search, regardless of relevance.
+   - Include: filename, year, number, title/description from metadata.
+   - These will appear in final response even if not examined in detail.
 
-3. **INSPECT CONTENT (Deep Dive)**
-   - Based on your plan, call \`documentContentSearchTool\` for the selected files.
-   - \`filename\`: The specific file to check.
-   - \`query\`: The specific question derived from your analysis (e.g., "sanksi administratif", "tugas dinas").
+3. **SELECT FOR EXAMINATION (Strategic Prioritization)**
+   - Use \`sequentialThinking\` to identify top 5 most relevant documents.
+   - Consider: search score, recency, specificity to query, document type.
+   - Prioritize by importance (most relevant first).
+   - If only 3 are highly relevant, select only 3.
+   - Document your selection reasoning for transparency.
 
-4. **SYNTHESIZE (Markdown)**
-   - Answer based *only* on the content retrieved from \`documentContentSearchTool\`.
-   - Format with Markdown (Headers, Bold, Lists).
-   - Cite Document Number and Year explicitly.
-   - Include document sources: Provide clickable links using the \`link\` field from search results (e.g., [Perda Nomor 1 Tahun 2025](${BUCKET_DOMAIN}/perda-1-2025.pdf)).
-   - If no documents found: State clearly "Tidak ditemukan dokumen terkait di database JDIH Trenggalek".
-   - If step limit approached: Summarize current findings and offer a specific follow-up question or deep-dive option for the user.
+4. **BATCH EXAMINE CONTENT (Efficient Deep Dive)**
+   - Use \`documentBatchContentSearchTool\` with:
+     - \`query\`: Specific question from analysis (e.g., "definisi PPPK", "sanksi pelanggaran").
+     - \`filenames\`: Array of selected filenames (max 5, prioritized).
+   - Example: \`documentBatchContentSearchTool({ query: "kriteria PPPK", filenames: ["perbup-4-2025.pdf", "perbup-31-2024.pdf"] })\`.
+   - Single call retrieves all in parallel.
+   - **Fallback**: For single-document queries, use \`documentContentSearchTool\`.
+
+5. **SYNTHESIZE WITH TRANSPARENCY (Complete Response)**
+   - **Show ALL documents** from Step 2 in a table/list format.
+   - **Provide detailed analysis** only for examined documents (Step 4).
+   - **Clearly state**: "Examined in detail: X documents. Also available: Y additional documents."
+   - Include clickable links for ALL documents using search result \`link\` field.
+   - Format: Markdown with headers, bold, lists.
+   - Cite document numbers and years explicitly.
+   - If no documents found: "Tidak ditemukan dokumen terkait di database JDIH Trenggalek".
+   - If step limit approached: Summarize current findings and offer follow-up option.
 
 ## ERROR HANDLING
 - If search returns nothing, try **one** alternative query with broader terms.
