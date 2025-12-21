@@ -1049,7 +1049,7 @@ export const PromptInputSubmit = ({
       variant={variant}
       {...props}
     >
-      {Icon} {status === "streaming" ? "Stop" : "Kirim"}
+      {Icon} {status === "submitted" || status === "streaming" ? "Stop" : "Kirim"}
     </InputGroupButton>
   );
 };

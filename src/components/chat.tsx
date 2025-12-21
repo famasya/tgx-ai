@@ -7,11 +7,13 @@ import {
 	PromptInputTextarea,
 } from "@/components/ai-elements/prompt-input";
 import { ChatMessages } from "@/components/chat-messages";
+import { cn } from "@/lib/utils";
 import type { ChatUIMessage } from "@/routes/api/chat";
 import { useChat } from "@ai-sdk/react";
 import { Quote } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { type FormEvent, useState } from "react";
+import { Button } from "./ui/button";
 
 export default function Chat() {
 	const [input, setInput] = useState("");
@@ -41,6 +43,33 @@ export default function Chat() {
 		"Ada berapa hibah kendaraan bermotor?",
 		"Carikan perda tentang pengadaan barang/jasa",
 	]);
+
+	const handleDownloadChat = () => {
+		const markdown = messages
+			.map((msg) => {
+				const role = msg.role === "user" ? "User" : "Assistant";
+				const textParts = msg.parts
+					.filter((part) => part.type === "text")
+					.map((part) => part.text)
+					.join("\n\n");
+				return `## ${role}\n\n${textParts}\n`;
+			})
+			.join("\n---\n\n");
+
+		const fullMarkdown = `# Telo AI Chat Export\n\nExported on: ${new Date().toLocaleString()}\n\n---\n\n${markdown}`;
+
+		const blob = new Blob([fullMarkdown], {
+			type: "text/markdown",
+		});
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement("a");
+		a.href = url;
+		a.download = `telo-ai-chat-${new Date().toISOString().slice(0, 10)}.md`;
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		URL.revokeObjectURL(url);
+	};
 
 	return (
 		<>
@@ -97,6 +126,7 @@ export default function Chat() {
 						/>
 					</PromptInputBody>
 					<PromptInputFooter className="flex justify-end bg-white">
+						<Button size={"sm"} variant="outline" className={cn("hidden", messages.length > 0 && "block")} disabled={messages.length === 0} onClick={handleDownloadChat}>Download Chat</Button>
 						<PromptInputSubmit
 							className="rounded-full bg-sky-600 hover:bg-sky-700 text-white"
 							size={"sm"}
