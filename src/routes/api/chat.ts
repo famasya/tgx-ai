@@ -172,7 +172,7 @@ timeline
 				});
 
 				const result = await agent.stream({
-					messages: convertToModelMessages(messages),
+					messages: await convertToModelMessages(messages),
 				});
 
 				return result.toUIMessageStreamResponse();
