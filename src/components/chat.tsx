@@ -12,7 +12,6 @@ import { useChat } from "@ai-sdk/react";
 import { Quote } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { type FormEvent, useState } from "react";
-import Header from "./header";
 
 export default function Chat() {
 	const [input, setInput] = useState("");
@@ -44,9 +43,7 @@ export default function Chat() {
 	]);
 
 	return (
-		<div className="flex flex-col h-full w-full mx-auto">
-			<Header />
-
+		<>
 			{/* Messages Area */}
 			<div className="flex-1 w-full overflow-hidden max-w-4xl mx-auto [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-2">
 				{messages.length > 0 ? (
@@ -113,6 +110,6 @@ export default function Chat() {
 					kebenaran informasi di sumber resmi.
 				</div>
 			</div>
-		</div>
+		</>
 	);
 }

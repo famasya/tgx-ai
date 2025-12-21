@@ -3,7 +3,6 @@ import {
 	ConversationContent,
 	ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
-import { Loader } from "@/components/ai-elements/loader";
 import {
 	Message,
 	MessageAction,
@@ -106,7 +105,8 @@ function ToolCallDisplay({
 					<div className="flex-1">
 						<div className="font-medium text-sm text-zinc-900">
 							<span className="px-2 bg-violet-100 py-0.5 rounded-full">
-								{getToolLabel()}</span>
+								{getToolLabel()}
+							</span>
 						</div>
 						<div className="text-xs text-zinc-600 mt-1 break-words">
 							{getToolArgs()}
@@ -239,9 +239,21 @@ export function ChatMessages({
 						})}
 					</div>
 				))}
-				{status === "submitted" && <Loader />}
+				{status === "submitted" && <LoadingSkeleton />}
 			</ConversationContent>
 			<ConversationScrollButton />
 		</Conversation>
+	);
+}
+
+function LoadingSkeleton() {
+	return (
+		<div>
+			<div className="animate-pulse space-y-3">
+				<div className="h-4 bg-gray-200 rounded w-3/4"></div>
+				<div className="h-4 bg-gray-200 rounded w-1/2"></div>
+				<div className="h-18 bg-gray-200 rounded w-5/6"></div>
+			</div>
+		</div>
 	);
 }

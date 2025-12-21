@@ -9,10 +9,10 @@ import { Button } from "./ui/button";
 
 export default function Header() {
 	return (
-		<div className="flex-shrink-0 bg-gradient-to-b from-zinc-100 to-white px-4 py-2">
+		<header className="flex-shrink-0 bg-gradient-to-b from-zinc-100 to-white px-4 py-2">
 			<div className="flex items-center justify-between">
 				<Link
-					to="."
+					to="/"
 					className="flex flex-row items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-1 px-2 py-1 rounded-lg transition-colors"
 				>
 					<HugeiconsIcon
@@ -29,16 +29,30 @@ export default function Header() {
 				</Link>
 
 				<div className="text-xs text-zinc-500 flex gap-2">
-					<Button variant={"outline"} size={"sm"} className="rounded-full">
-						<HugeiconsIcon icon={Document} />
-						Dokumen Sumber
+					<Button
+						variant={"outline"}
+						size={"sm"}
+						className="rounded-full"
+						asChild
+					>
+						<Link to="/docs">
+							<HugeiconsIcon icon={Document} />
+							Dokumen
+						</Link>
 					</Button>
-					<Button variant={"outline"} size={"sm"} className="rounded-full">
-						<HugeiconsIcon icon={HelpCircleIcon} />
-						Tentang
+					<Button
+						variant={"outline"}
+						size={"sm"}
+						className="rounded-full"
+						asChild
+					>
+						<Link to="/about">
+							<HugeiconsIcon icon={HelpCircleIcon} />
+							Tentang
+						</Link>
 					</Button>
 				</div>
 			</div>
-		</div>
+		</header>
 	);
 }

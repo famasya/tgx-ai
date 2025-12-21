@@ -163,3 +163,7 @@
 .streamdown a {
   @apply text-blue-500;
 }
+
+main a {
+  @apply text-blue-600 hover:text-blue-800;
+}

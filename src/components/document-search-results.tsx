@@ -40,19 +40,19 @@ export function DocumentSearchResults({
 			</Button>
 
 			<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-				<DialogContent className="max-w-4xl">
-					<DialogHeader>
-						<DialogTitle>Hasil Pencarian Dokumen</DialogTitle>
-						<DialogDescription>
+				<DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] flex flex-col p-4 sm:p-6">
+					<DialogHeader className="flex-shrink-0">
+						<DialogTitle className="text-lg sm:text-xl">Hasil Pencarian Dokumen</DialogTitle>
+						<DialogDescription className="line-clamp-2 text-sm">
 							Hasil pencarian untuk: {query}
 						</DialogDescription>
 					</DialogHeader>
-					<div className="space-y-4">
-						<div className="text-sm text-zinc-700">
+					<div className="space-y-3 sm:space-y-4 flex-1 overflow-hidden flex flex-col">
+						<div className="text-sm text-zinc-700 flex-shrink-0">
 							Ditemukan{" "}
 							<span className="font-semibold">{documents.length}</span> dokumen
 						</div>
-						<div className="space-y-2 max-h-[400px] overflow-y-auto">
+						<div className="space-y-2 sm:space-y-3 overflow-y-auto flex-1 pr-1">
 							{documents.map((doc, idx) => {
 								const title = doc.filename || "Unknown";
 								const link = `${BUCKET_DOMAIN}/${doc.filename}` || "";
@@ -61,11 +61,11 @@ export function DocumentSearchResults({
 								return (
 									<div
 										key={`dialog-doc-${doc.file_id}-${idx}`}
-										className="p-3 border border-zinc-200 rounded-lg transition-colors"
+										className="p-3 sm:p-4 border border-zinc-200 rounded-lg transition-colors"
 									>
-										<div className="flex items-start justify-between gap-2">
+										<div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
 											<div className="flex-1 min-w-0">
-												<div className="font-medium text-sm text-zinc-900 truncate">
+												<div className="font-medium text-sm text-zinc-900 break-words">
 													{title}
 												</div>
 												{link && (
@@ -73,22 +73,18 @@ export function DocumentSearchResults({
 														href={link}
 														target="_blank"
 														rel="noopener noreferrer"
-														className="text-xs text-blue-600 hover:text-blue-700 hover:underline break-all"
+														className="text-xs text-blue-600 hover:text-blue-700 hover:underline break-all block mt-1"
 													>
 														{link}
 													</a>
 												)}
 											</div>
 											{score && (
-												<Badge variant={"default"}>
-													Score: {score}
-												</Badge>
+												<Badge variant={"default"} className="self-start flex-shrink-0">Score: {score}</Badge>
 											)}
 										</div>
-										<div className="mt-2 text-sm text-zinc-700 bg-zinc-100 p-2">
-											<Streamdown>
-												{doc.content?.[0].text}
-											</Streamdown>
+										<div className="mt-2 text-sm text-zinc-700 bg-zinc-100 p-2 sm:p-3 rounded overflow-auto">
+											<Streamdown>{doc.content?.[0].text}</Streamdown>
 										</div>
 									</div>
 								);

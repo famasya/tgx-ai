@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 import { DefaultCatchBoundary } from "@/components/default-catch-bounday";
+import Header from "@/components/header";
 import { NotFound } from "@/components/not-found";
 import appCss from "@/styles/app.css?url";
 import { seo } from "@/utils/seo";
@@ -51,7 +52,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<head>
 				<HeadContent />
 			</head>
-			<body className="w-full h-dvh">
+			<body className="w-full h-dvh flex flex-col">
+				<Header />
 				{children}
 				<TanStackRouterDevtools position="bottom-right" />
 				<Scripts />
