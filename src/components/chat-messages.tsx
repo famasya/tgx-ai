@@ -98,8 +98,8 @@ function ToolCallDisplay({
 	};
 
 	return (
-		<div className="my-2 p-3 bg-violet-50 border border-violet-200 rounded-lg">
-			<div className="flex items-start gap-2">
+		<div className="my-2 px-2 py-1 bg-violet-50 border border-violet-200 rounded-lg">
+			<div className="flex items-center gap-2">
 				<div className="mt-0.5 text-violet-600">{getToolIcon()}</div>
 				<div className="flex-1 w-full flex flex-col gap-3">
 					<div className="flex flex-row justify-between">

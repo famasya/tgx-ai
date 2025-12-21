@@ -1,4 +1,3 @@
-import { documentBatchContentSearchTool } from "@/lib/tools/document-batch-content-search";
 import { documentContentSearchTool } from "@/lib/tools/document-content-search";
 import { documentRelationGraph } from "@/lib/tools/document-relation-graph";
 import { documentSearchTool } from "@/lib/tools/document-search";
@@ -23,7 +22,6 @@ const tools = {
 	sequentialThinking,
 	generateSummarySequentialThinking,
 	documentContentSearchTool,
-	documentBatchContentSearchTool,
 	documentRelationGraph,
 } satisfies ToolSet;
 
@@ -135,8 +133,12 @@ timeline
 
 1. **SEARCH (Direct & Fast)**
    - Construct targeted search query from user's intent.
+   - **CRITICAL**: Always include document type keywords (peraturan, perbup, perda, keputusan, surat edaran) in your query for better results.
    - Call \`documentSearch\` immediately.
-   - Example: User "Carikan peraturan PPPK" -> \`documentSearch("peraturan pegawai pemerintah perjanjian kerja")\`.
+   - Examples:
+     - User: "Carikan peraturan PPPK" -> \`documentSearch("peraturan pegawai pemerintah perjanjian kerja")\`
+     - User: "Carikan tentang lingkungan hidup" -> \`documentSearch("peraturan lingkungan hidup")\` (NOT just "lingkungan hidup")
+     - User: "Cari aturan tentang pajak" -> \`documentSearch("peraturan pajak")\` (NOT just "pajak")
 
 2. **LIST ALL RESULTS (Complete Inventory)**
    - **CRITICAL**: Note ALL documents returned from search, regardless of relevance.
