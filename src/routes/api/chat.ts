@@ -1,5 +1,6 @@
 import { BUCKET_DOMAIN } from "@/lib/constants";
 import { documentContentSearchTool } from "@/lib/tools/document-content-search";
+import { documentRelationGraph } from "@/lib/tools/document-relation-graph";
 import { documentSearchTool } from "@/lib/tools/document-search";
 import {
 	generateSummarySequentialThinking,
@@ -22,6 +23,7 @@ const tools = {
 	sequentialThinking,
 	generateSummarySequentialThinking,
 	documentContentSearchTool,
+	documentRelationGraph,
 } satisfies ToolSet;
 
 type ToolTypes = InferUITools<typeof tools>;
@@ -43,6 +45,8 @@ export const Route = createFileRoute("/api/chat")({
 				const { messages }: { messages: UIMessage[] } = await request.json();
 				const agent = new ToolLoopAgent({
 					model: openrouter("openai/gpt-oss-120b"),
+					temperature: 0.1,
+					topP: 0.9,
 					instructions: `You are a legal document research agent for JDIH Kabupaten Trenggalek.
 
 ## CRITICAL: OPTIMIZATION & EFFICIENCY
@@ -67,26 +71,21 @@ export const Route = createFileRoute("/api/chat")({
 ## AVAILABLE TOOLS
 - \`sequentialThinking\`: Record structured steps in analysis for complex queries requiring planning or multi-document evaluation.
 - \`generateSummarySequentialThinking\`: Synthesize a summary of your thought process after using \`sequentialThinking\`.
-- \`documentRelationGraph\`: Generate visual graphs of document relationships (e.g., "mengubah", "mencabut"). Use when users ask to visualize connections between documents.
+- \`documentRelationGraph\`: **REQUIRED for document relationships**. Use this tool when users ask to visualize how documents relate (mengubah, mencabut, merujuk). Pass clean document filenames and relationship types - the tool will handle all sanitization and rendering.
 
 ## VISUALIZATION WITH MERMAID DIAGRAMS
-When users ask about relationships, analysis, workflows, or connections between documents, use Mermaid diagram syntax in your response:
+**CRITICAL**: For document relationships, ALWAYS use the \`documentRelationGraph\` tool. Do NOT manually create Mermaid diagrams for document relationships.
 
-**Use Cases for Mermaid:**
-1. **Document Relationships**: Show how documents relate (mengubah, mencabut, merujuk)
-2. **Process Flows**: Visualize procedures or workflows mentioned in regulations
-3. **Organizational Structure**: Display hierarchies or organizational charts
-4. **Timeline**: Show chronological relationships between regulations
-5. **Comparison Analysis**: Compare multiple documents or provisions
+For OTHER types of visualizations (NOT document relationships), you may create Mermaid diagrams manually:
 
-**Mermaid Syntax Examples:**
+**Use Cases for Manual Mermaid:**
+1. **Process Flows**: Visualize procedures or workflows mentioned in regulations
+2. **Organizational Structure**: Display hierarchies or organizational charts
+3. **Timeline**: Show chronological relationships between regulations
+4. **Comparison Analysis**: Compare multiple documents or provisions
+5. **Decision Trees**: Show conditional logic in regulations
 
-\`\`\`mermaid
-graph TD
-    A[Perda 1/2020] -->|Mengubah| B[Perda 5/2018]
-    A -->|Mencabut| C[Perda 3/2015]
-    B -->|Merujuk| D[Perbup 10/2019]
-\`\`\`
+**Mermaid Syntax Examples (for non-document-relationship visualizations):**
 
 \`\`\`mermaid
 flowchart LR
@@ -104,11 +103,16 @@ timeline
     2020 : Perda 1/2020 - Perubahan Kedua
 \`\`\`
 
-**When to Use Mermaid:**
-- User explicitly asks for visualization, diagram, or graph
-- User asks "bagaimana hubungan", "apa kaitan", "visualisasikan"
-- Complex relationships that are clearer in diagram form
-- Process flows or decision trees in regulations
+**When to Use documentRelationGraph Tool:**
+- User asks about document relationships ("bagaimana hubungan dokumen", "visualisasikan relasi")
+- Showing how documents relate (mengubah, mencabut, merujuk)
+- Any question about connections between legal documents
+
+**When to Use Manual Mermaid:**
+- Process flows or decision trees in regulations (NOT document relationships)
+- Organizational charts or hierarchies
+- Timeline visualizations
+- Other diagrams that don't involve document relationships
 
 **Always provide:**
 1. Brief text explanation before the diagram

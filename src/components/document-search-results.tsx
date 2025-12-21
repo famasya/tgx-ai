@@ -36,7 +36,7 @@ export function DocumentSearchResults({
 				size={"sm"}
 				onClick={() => setIsDialogOpen(true)}
 			>
-				<HugeiconsIcon icon={Document} /> Ditemukan {documents.length} dokumen
+				<HugeiconsIcon icon={Document} /> {documents.length} docs
 			</Button>
 
 			<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

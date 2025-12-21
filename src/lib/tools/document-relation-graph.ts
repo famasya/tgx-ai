@@ -22,130 +22,103 @@ const documentRelationGraphSchema = z.object({
 
 type DocumentRelationGraphInput = z.infer<typeof documentRelationGraphSchema>;
 
-interface GraphNode {
-	id: string;
-	position: { x: number; y: number };
-	data: {
-		label: string;
-		filename: string;
-	};
-	draggable?: boolean;
-}
-
-interface GraphEdge {
-	id: string;
-	source: string;
-	target: string;
-	label?: string;
-	animated?: boolean;
+/**
+ * Sanitize document name by removing HTML tags and special characters
+ * that could break Mermaid syntax
+ */
+function sanitizeDocumentName(filename: string): string {
+	return (
+		filename
+			// Remove all HTML tags (including <br>, <em>, etc.)
+			.replace(/<[^>]*>/g, "")
+			// Decode common HTML entities
+			.replace(/&nbsp;/g, " ")
+			.replace(/&quot;/g, '"')
+			.replace(/&lt;/g, "<")
+			.replace(/&gt;/g, ">")
+			.replace(/&amp;/g, "&")
+			// Remove file extension
+			.replace(/\.[^/.]+$/, "")
+			// Remove or replace characters that break Mermaid
+			.replace(/[[\](){}|<>]/g, "")
+			// Replace quotes with single quotes
+			.replace(/"/g, "'")
+			// Normalize whitespace
+			.replace(/\s+/g, " ")
+			// Trim whitespace
+			.trim()
+	);
 }
 
 /**
- * Apply hierarchical layout to nodes based on relationships
- * Nodes are arranged in layers from left to right based on their dependencies
+ * Create a safe node ID for Mermaid by removing all special characters
  */
-function applyHierarchicalLayout(
+function createNodeId(filename: string): string {
+	return filename
+		.replace(/<[^>]*>/g, "") // Remove HTML tags
+		.replace(/[^a-zA-Z0-9]/g, "_") // Replace special chars with underscore
+		.replace(/_+/g, "_") // Replace multiple underscores with single
+		.replace(/^_|_$/g, ""); // Remove leading/trailing underscores
+}
+
+/**
+ * Generate Mermaid graph syntax from documents and relationships
+ */
+function generateMermaidGraph(
 	documents: string[],
 	relationships: DocumentRelationGraphInput["relationships"],
-): GraphNode[] {
-	// Build adjacency map to understand dependencies
-	const incomingEdges = new Map<string, number>();
-	const outgoingEdges = new Map<string, Set<string>>();
+): string {
+	const lines: string[] = ["graph TD"];
+
+	// Create a map of filename to sanitized label
+	const nodeLabels = new Map<string, string>();
+	const nodeIds = new Map<string, string>();
 
 	for (const doc of documents) {
-		incomingEdges.set(doc, 0);
-		outgoingEdges.set(doc, new Set());
+		const nodeId = createNodeId(doc);
+		const label = sanitizeDocumentName(doc);
+		nodeLabels.set(doc, label);
+		nodeIds.set(doc, nodeId);
 	}
 
-	for (const rel of relationships) {
-		incomingEdges.set(rel.to, (incomingEdges.get(rel.to) || 0) + 1);
-		outgoingEdges.get(rel.from)?.add(rel.to);
-	}
+	// Add relationships as edges
+	if (relationships.length > 0) {
+		for (const rel of relationships) {
+			const fromId = nodeIds.get(rel.from);
+			const toId = nodeIds.get(rel.to);
+			const fromLabel = nodeLabels.get(rel.from);
+			const toLabel = nodeLabels.get(rel.to);
 
-	// Assign nodes to layers using topological sorting
-	const layers: string[][] = [];
-	const assigned = new Set<string>();
-	const queue = documents.filter((doc) => incomingEdges.get(doc) === 0);
-
-	// Start with nodes that have no incoming edges (source nodes)
-	while (queue.length > 0) {
-		const currentLayer = [...queue];
-		queue.length = 0;
-		layers.push(currentLayer);
-
-		for (const node of currentLayer) {
-			assigned.add(node);
-			for (const target of outgoingEdges.get(node) || []) {
-				const count = incomingEdges.get(target) || 0;
-				incomingEdges.set(target, count - 1);
-				if (count - 1 === 0 && !assigned.has(target)) {
-					queue.push(target);
-				}
+			if (fromId && toId && fromLabel && toLabel) {
+				// Sanitize relationship type - remove HTML and special chars
+				const relType = rel.type
+					.replace(/<[^>]*>/g, "") // Remove HTML tags
+					.replace(/&nbsp;/g, " ") // Decode entities
+					.replace(/[[\](){}|<>"]/g, "") // Remove special chars
+					.replace(/\s+/g, " ") // Normalize whitespace
+					.trim();
+				lines.push(
+					`    ${fromId}["${fromLabel}"] -->|${relType}| ${toId}["${toLabel}"]`,
+				);
+			}
+		}
+	} else {
+		// If no relationships, just list the documents as separate nodes
+		for (const doc of documents) {
+			const nodeId = nodeIds.get(doc);
+			const label = nodeLabels.get(doc);
+			if (nodeId && label) {
+				lines.push(`    ${nodeId}["${label}"]`);
 			}
 		}
 	}
 
-	// Add remaining nodes (cycles or disconnected) to final layer
-	const remaining = documents.filter((doc) => !assigned.has(doc));
-	if (remaining.length > 0) {
-		layers.push(remaining);
-	}
-
-	// Position nodes
-	const LAYER_WIDTH = 300; // Horizontal spacing between layers
-	const NODE_HEIGHT = 120; // Vertical spacing between nodes
-
-	const nodes: GraphNode[] = [];
-	for (let layerIndex = 0; layerIndex < layers.length; layerIndex++) {
-		const layer = layers[layerIndex];
-		const layerHeight = (layer.length - 1) * NODE_HEIGHT;
-		const startY = -layerHeight / 2; // Center the layer vertically
-
-		for (let nodeIndex = 0; nodeIndex < layer.length; nodeIndex++) {
-			const filename = layer[nodeIndex];
-			nodes.push({
-				id: filename,
-				position: {
-					x: layerIndex * LAYER_WIDTH,
-					y: startY + nodeIndex * NODE_HEIGHT,
-				},
-				data: {
-					label: filename.replace(/\.[^/.]+$/, ""), // Remove file extension
-					filename: filename,
-				},
-				draggable: true,
-			});
-		}
-	}
-
-	return nodes;
-}
-
-/**
- * Simple grid layout fallback when there are no relationships
- */
-function applyGridLayout(documents: string[]): GraphNode[] {
-	const GRID_COLS = Math.ceil(Math.sqrt(documents.length));
-	const GRID_SPACING_X = 250;
-	const GRID_SPACING_Y = 150;
-
-	return documents.map((filename, index) => ({
-		id: filename,
-		position: {
-			x: (index % GRID_COLS) * GRID_SPACING_X,
-			y: Math.floor(index / GRID_COLS) * GRID_SPACING_Y,
-		},
-		data: {
-			label: filename.replace(/\.[^/.]+$/, ""),
-			filename: filename,
-		},
-		draggable: true,
-	}));
+	return lines.join("\n");
 }
 
 export const documentRelationGraph = tool({
 	description:
-		"Generate a visual relationship graph between documents. Returns a graph in @xyflow/react format showing documents as nodes and relationships as edges. Use this when users ask to visualize document relationships, dependencies, or connections.",
+		"Generate a visual relationship graph between documents in Mermaid format. Returns Mermaid diagram code showing documents as nodes and relationships as edges. Use this when users ask to visualize document relationships, dependencies, or connections.",
 	inputSchema: documentRelationGraphSchema,
 	execute: async ({ documents, relationships }) => {
 		// Validate that all relationship references exist in documents array
@@ -162,29 +135,15 @@ export const documentRelationGraph = tool({
 			);
 		}
 
-		// Generate nodes with layout
-		const nodes: GraphNode[] =
-			relationships.length > 0
-				? applyHierarchicalLayout(documents, relationships)
-				: applyGridLayout(documents);
-
-		// Generate edges
-		const shouldAnimate = nodes.length <= 50; // Disable animations for large graphs
-		const edges: GraphEdge[] = relationships.map((rel, index) => ({
-			id: `e-${rel.from}-${rel.to}-${index}`,
-			source: rel.from,
-			target: rel.to,
-			label: rel.type,
-			animated: shouldAnimate,
-		}));
+		// Generate Mermaid diagram
+		const mermaidCode = generateMermaidGraph(documents, relationships);
 
 		return {
-			nodes,
-			edges,
+			mermaid: mermaidCode,
 			metadata: {
 				documentCount: documents.length,
 				relationshipCount: relationships.length,
-				layoutAlgorithm: relationships.length > 0 ? "hierarchical" : "grid",
+				format: "mermaid",
 			},
 		};
 	},

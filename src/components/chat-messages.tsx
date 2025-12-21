@@ -16,9 +16,10 @@ import {
 } from "@/components/ai-elements/reasoning";
 import { DocumentSearchResults } from "@/components/document-search-results";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
+import { MermaidDiagram } from "@/components/mermaid-diagram";
 import type { ChatUIMessage } from "@/routes/api/chat";
 import {
-	AiNetworkIcon,
+	AiSheetsIcon,
 	Copy01Icon,
 	FileSearchIcon,
 	RefreshIcon,
@@ -51,7 +52,7 @@ function ToolCallDisplay({
 					<HugeiconsIcon icon={FileSearchIcon} size={16} strokeWidth={2} />
 				);
 			case "documentRelationGraph":
-				return <HugeiconsIcon icon={AiNetworkIcon} size={16} strokeWidth={2} />;
+				return <HugeiconsIcon icon={AiSheetsIcon} size={16} strokeWidth={2} />;
 			default:
 				return <HugeiconsIcon icon={Search01Icon} size={16} strokeWidth={2} />;
 		}
@@ -97,26 +98,39 @@ function ToolCallDisplay({
 		);
 	};
 
+	const shouldShowMermaid = (): boolean => {
+		return toolName === "documentRelationGraph" && !!output?.mermaid;
+	};
+
 	return (
 		<div className="my-2 p-3 bg-violet-50 border border-violet-200 rounded-lg">
 			<div className="flex items-start gap-2">
 				<div className="mt-0.5 text-violet-600">{getToolIcon()}</div>
-				<div className="flex-1 w-full flex flex-row justify-between">
-					<div className="flex-1">
-						<div className="font-medium text-sm text-zinc-900">
-							<span className="px-2 bg-violet-100 py-0.5 rounded-full">
-								{getToolLabel()}
-							</span>
+				<div className="flex-1 w-full flex flex-col gap-3">
+					<div className="flex flex-row justify-between">
+						<div className="flex-1">
+							<div className="font-medium text-sm text-zinc-900">
+								<span className="px-2 bg-violet-100 py-0.5 rounded-full">
+									{getToolLabel()}
+								</span>
+							</div>
+							<div className="text-xs text-zinc-600 mt-1 break-words">
+								{getToolArgs()}
+							</div>
 						</div>
-						<div className="text-xs text-zinc-600 mt-1 break-words">
-							{getToolArgs()}
-						</div>
+						{shouldShowDocuments() && output && (
+							<DocumentSearchResults
+								output={output as AutoRagSearchResponse}
+								query={getToolArgs()}
+							/>
+						)}
 					</div>
-					{shouldShowDocuments() && output && (
-						<DocumentSearchResults
-							output={output as AutoRagSearchResponse}
-							query={getToolArgs()}
-						/>
+					{shouldShowMermaid() && (
+						<div className="bg-white p-4 rounded-md border border-violet-100">
+							<MermaidDiagram
+								chart={String((output as { mermaid: string }).mermaid)}
+							/>
+						</div>
 					)}
 				</div>
 			</div>
@@ -218,6 +232,16 @@ export function ChatMessages({
 										<div key={`${message.id}-${i}`} className="px-4 sm:px-6">
 											<ToolCallDisplay
 												toolName="generateSummarySequentialThinking"
+												input={(part.input || {}) as Record<string, unknown>}
+												output={part.output as Record<string, unknown>}
+											/>
+										</div>
+									);
+								case "tool-documentRelationGraph":
+									return (
+										<div key={`${message.id}-${i}`} className="px-4 sm:px-6">
+											<ToolCallDisplay
+												toolName="documentRelationGraph"
 												input={(part.input || {}) as Record<string, unknown>}
 												output={part.output as Record<string, unknown>}
 											/>
