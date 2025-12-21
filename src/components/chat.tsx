@@ -126,7 +126,15 @@ export default function Chat() {
 						/>
 					</PromptInputBody>
 					<PromptInputFooter className="flex justify-end bg-white">
-						<Button size={"sm"} variant="outline" className={cn("hidden", messages.length > 0 && "block")} disabled={messages.length === 0} onClick={handleDownloadChat}>Download Chat</Button>
+						<Button
+							size={"sm"}
+							variant="outline"
+							className={cn("hidden", messages.length > 0 && "block")}
+							disabled={messages.length === 0}
+							onClick={handleDownloadChat}
+						>
+							Download Chat
+						</Button>
 						<PromptInputSubmit
 							className="rounded-full bg-sky-600 hover:bg-sky-700 text-white"
 							size={"sm"}

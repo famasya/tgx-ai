@@ -42,7 +42,9 @@ export function DocumentSearchResults({
 			<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
 				<DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] flex flex-col p-4 sm:p-6">
 					<DialogHeader className="flex-shrink-0">
-						<DialogTitle className="text-lg sm:text-xl">Hasil Pencarian Dokumen</DialogTitle>
+						<DialogTitle className="text-lg sm:text-xl">
+							Hasil Pencarian Dokumen
+						</DialogTitle>
 						<DialogDescription className="line-clamp-2 text-sm">
 							Hasil pencarian untuk: {query}
 						</DialogDescription>
@@ -80,7 +82,12 @@ export function DocumentSearchResults({
 												)}
 											</div>
 											{score && (
-												<Badge variant={"default"} className="self-start flex-shrink-0">Score: {score}</Badge>
+												<Badge
+													variant={"default"}
+													className="self-start flex-shrink-0"
+												>
+													Score: {score}
+												</Badge>
 											)}
 										</div>
 										<div className="mt-2 text-sm text-zinc-700 bg-zinc-100 p-2 sm:p-3 rounded overflow-auto">

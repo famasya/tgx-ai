@@ -72,7 +72,7 @@ export const MarkdownRenderer = memo(
 	({ children, className }: MarkdownRendererProps) => {
 		const parsedContent = useMemo(
 			() => parseMarkdownWithMermaid(children),
-			[children]
+			[children],
 		);
 
 		// If only markdown, use Streamdown directly
@@ -112,7 +112,7 @@ export const MarkdownRenderer = memo(
 			</div>
 		);
 	},
-	(prevProps, nextProps) => prevProps.children === nextProps.children
+	(prevProps, nextProps) => prevProps.children === nextProps.children,
 );
 
 MarkdownRenderer.displayName = "MarkdownRenderer";

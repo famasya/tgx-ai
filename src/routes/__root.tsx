@@ -27,7 +27,8 @@ export const Route = createRootRouteWithContext<{
 			},
 			...seo({
 				title: "TELO-AI",
-				description: "Asisten pencarian peraturan, SK, dan dokumen hukum daerah Kabupaten Trenggalek",
+				description:
+					"Asisten pencarian peraturan, SK, dan dokumen hukum daerah Kabupaten Trenggalek",
 			}),
 		],
 		links: [

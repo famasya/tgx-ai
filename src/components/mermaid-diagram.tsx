@@ -74,7 +74,9 @@ export function MermaidDiagram({ chart, className }: MermaidDiagramProps) {
 				}
 			} catch (err) {
 				if (mounted) {
-					setError(err instanceof Error ? err.message : "Failed to render diagram");
+					setError(
+						err instanceof Error ? err.message : "Failed to render diagram",
+					);
 					setIsLoading(false);
 				}
 			}
