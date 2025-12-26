@@ -35,7 +35,7 @@
     "@tanstack/react-router": "^1.141.2",
     "@tanstack/react-router-devtools": "^1.141.2",
     "@tanstack/react-router-ssr-query": "^1.141.2",
-    "@tanstack/react-start": "^1.141.3",
+    "@tanstack/react-start": "^1.143.11",
     "@xyflow/react": "^12.10.0",
     "ai": "^6.0.0-beta.150",
     "class-variance-authority": "^0.7.1",
